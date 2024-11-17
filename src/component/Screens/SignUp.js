@@ -1,63 +1,50 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
-function SignUp() {
+const SignUp = () => {
   const [formData, setFormData] = useState({
-    customername: '',
+    first_name: '',
+    last_name: '',
+    mobile: '',
     email: '',
-    contactno: '',
-    username: '',
+    address: '',
     password: '',
     confirm_password: '',
   });
 
+  const navigate = useNavigate();  // Initialize the navigate function
+
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-
     if (formData.password !== formData.confirm_password) {
       alert("Passwords do not match");
       return;
     }
 
-    try {
-      const csrfToken = document.cookie.split(';').find(cookie => cookie.trim().startsWith('csrftoken=')).split('=')[1];
+    const user = {
+      first_name: formData.first_name,
+      last_name: formData.last_name,
+      mobile: formData.mobile,
+      email: formData.email,
+      address: formData.address,
+      password: formData.password,
+    };
 
-      const response = await axios.post('/api/register/', {
-        customername: formData.customername,
-        email: formData.email,
-        contactno: formData.contactno,
-        login: {
-          username: formData.username,
-          password: formData.password,
-        },
-      }, {
-        headers: {
-          'X-CSRFToken': csrfToken,
-        },
+    axios
+      .post('http://127.0.0.1:8000/api/register/', user)
+      .then((response) => {
+        alert("Registration successful");
+        navigate('/login');  // Redirect to the login page after successful registration
+      })
+      .catch((error) => {
+        alert("Registration failed: " + error.response.data.detail);
       });
-
-      if (response.status === 201) {
-        alert('Registration successful');
-      }
-    } catch (error) {
-      if (error.response) {
-        console.error('Backend error:', error.response);
-        alert(error.response.data.error || 'Error during registration');
-      } else if (error.request) {
-        console.error('No response received:', error.request);
-        alert('No response from the server');
-      } else {
-        console.error('Error during registration', error);
-        alert('Error during registration');
-      }
-    }
   };
 
   return (
@@ -73,127 +60,105 @@ function SignUp() {
       }}
     >
       <h2 style={{ textAlign: 'center', marginBottom: '1rem' }}>Sign Up</h2>
-      
+
+      {/* First Name */}
       <div style={{ marginBottom: '1rem' }}>
-        <label htmlFor="customername">Customer Name</label>
+        <label htmlFor="first_name">First Name</label>
         <input
           type="text"
-          name="customername"
-          id="customername"
-          value={formData.customername}
+          name="first_name"
+          value={formData.first_name}
           onChange={handleChange}
-          style={{
-            width: '100%',
-            padding: '0.5rem',
-            marginTop: '0.5rem',
-            borderRadius: '4px',
-            border: '1px solid #555',
-            backgroundColor: '#222',
-            color: '#fff',
-          }}
+          placeholder="First Name"
+          required
+          style={{ width: '100%', padding: '0.5rem', backgroundColor: '#222', color: '#fff' }}
         />
       </div>
-      
+
+      {/* Last Name */}
+      <div style={{ marginBottom: '1rem' }}>
+        <label htmlFor="last_name">Last Name</label>
+        <input
+          type="text"
+          name="last_name"
+          value={formData.last_name}
+          onChange={handleChange}
+          placeholder="Last Name"
+          required
+          style={{ width: '100%', padding: '0.5rem', backgroundColor: '#222', color: '#fff' }}
+        />
+      </div>
+
+      {/* Mobile */}
+      <div style={{ marginBottom: '1rem' }}>
+        <label htmlFor="mobile">Mobile</label>
+        <input
+          type="text"
+          name="mobile"
+          value={formData.mobile}
+          onChange={handleChange}
+          placeholder="Mobile"
+          required
+          style={{ width: '100%', padding: '0.5rem', backgroundColor: '#222', color: '#fff' }}
+        />
+      </div>
+
+      {/* Email */}
       <div style={{ marginBottom: '1rem' }}>
         <label htmlFor="email">Email</label>
         <input
           type="email"
           name="email"
-          id="email"
           value={formData.email}
           onChange={handleChange}
-          style={{
-            width: '100%',
-            padding: '0.5rem',
-            marginTop: '0.5rem',
-            borderRadius: '4px',
-            border: '1px solid #555',
-            backgroundColor: '#222',
-            color: '#fff',
-          }}
-        />
-      </div>
-      
-      <div style={{ marginBottom: '1rem' }}>
-        <label htmlFor="contactno">Contact No</label>
-        <input
-          type="text"
-          name="contactno"
-          id="contactno"
-          value={formData.contactno}
-          onChange={handleChange}
-          style={{
-            width: '100%',
-            padding: '0.5rem',
-            marginTop: '0.5rem',
-            borderRadius: '4px',
-            border: '1px solid #555',
-            backgroundColor: '#222',
-            color: '#fff',
-          }}
-        />
-      </div>
-      
-      <div style={{ marginBottom: '1rem' }}>
-        <label htmlFor="username">Username</label>
-        <input
-          type="text"
-          name="username"
-          id="username"
-          value={formData.username}
-          onChange={handleChange}
-          style={{
-            width: '100%',
-            padding: '0.5rem',
-            marginTop: '0.5rem',
-            borderRadius: '4px',
-            border: '1px solid #555',
-            backgroundColor: '#222',
-            color: '#fff',
-          }}
+          placeholder="Email"
+          required
+          style={{ width: '100%', padding: '0.5rem', backgroundColor: '#222', color: '#fff' }}
         />
       </div>
 
+      {/* Address */}
+      <div style={{ marginBottom: '1rem' }}>
+        <label htmlFor="address">Address</label>
+        <input
+          type="text"
+          name="address"
+          value={formData.address}
+          onChange={handleChange}
+          placeholder="Address"
+          style={{ width: '100%', padding: '0.5rem', backgroundColor: '#222', color: '#fff' }}
+        />
+      </div>
+
+      {/* Password */}
       <div style={{ marginBottom: '1rem' }}>
         <label htmlFor="password">Password</label>
         <input
           type="password"
           name="password"
-          id="password"
           value={formData.password}
           onChange={handleChange}
-          style={{
-            width: '100%',
-            padding: '0.5rem',
-            marginTop: '0.5rem',
-            borderRadius: '4px',
-            border: '1px solid #555',
-            backgroundColor: '#222',
-            color: '#fff',
-          }}
+          placeholder="Password"
+          required
+          style={{ width: '100%', padding: '0.5rem', backgroundColor: '#222', color: '#fff' }}
         />
       </div>
 
+      {/* Confirm Password */}
       <div style={{ marginBottom: '1rem' }}>
         <label htmlFor="confirm_password">Confirm Password</label>
         <input
           type="password"
           name="confirm_password"
-          id="confirm_password"
           value={formData.confirm_password}
           onChange={handleChange}
-          style={{
-            width: '100%',
-            padding: '0.5rem',
-            marginTop: '0.5rem',
-            borderRadius: '4px',
-            border: '1px solid #555',
-            backgroundColor: '#222',
-            color: '#fff',
-          }}
+          placeholder="Confirm Password"
+          required
+          style={{ width: '100%', padding: '0.5rem', backgroundColor: '#222', color: '#fff' }}
         />
       </div>
 
+      {/* Submit Button */}
       <button
         type="submit"
         style={{
@@ -206,10 +171,10 @@ function SignUp() {
           cursor: 'pointer',
         }}
       >
-        Sign Up
+        Register
       </button>
     </form>
   );
-}
+};
 
 export default SignUp;
