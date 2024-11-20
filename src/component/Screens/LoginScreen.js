@@ -2,43 +2,40 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
-function LoginScreen() {
-  const [credentials, setCredentials] = useState({
-    username: '',
-    password: ''
-  });
+const LoginScreen = () => {
+  const [formData, setFormData] = useState({ username: '', password: '' });
   const navigate = useNavigate();
 
   const handleChange = (e) => {
-    setCredentials({
-      ...credentials,
-      [e.target.name]: e.target.value,
-    });
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
 
-    try {
-      const response = await axios.post('/api/login/', {
-        username: credentials.username,
-        password: credentials.password,
-      }, {
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
+    // Update the form data to send email instead of username
+    const loginData = {
+      email: formData.username,  // Use email instead of username
+      password: formData.password
+    };
 
-      if (response.status === 200) {
-        const { redirect_url } = response.data;
-        // Redirect based on role
-        navigate(redirect_url);
-      }
-    } catch (error) {
-      console.error('Login failed:', error.response.data);
-      alert(error.response.data.error || 'Login failed');
-    }
-  };
+    axios
+      .post('http://127.0.0.1:8000/api/login/', loginData)
+      .then((response) => {
+        const { role } = response.data.data;
+
+        if (role === "admin") {
+          navigate('/adminhome');  
+        } else {
+          navigate('/userhome');  
+        }
+      })
+      .catch((error) => {
+        alert('Login failed: ' + error.response.data.error);  
+      });
+};
+
 
   return (
     <form
@@ -54,31 +51,35 @@ function LoginScreen() {
     >
       <h2 style={{ textAlign: 'center', marginBottom: '1rem' }}>Login</h2>
 
-      {/* Username */}
+      
       <div style={{ marginBottom: '1rem' }}>
         <label htmlFor="username">Username</label>
         <input
           type="text"
           name="username"
-          value={credentials.username}
+          value={formData.username}
           onChange={handleChange}
+          placeholder="Enter your email"
+          required
           style={{ width: '100%', padding: '0.5rem', backgroundColor: '#222', color: '#fff' }}
         />
       </div>
 
-      {/* Password */}
+      
       <div style={{ marginBottom: '1rem' }}>
         <label htmlFor="password">Password</label>
         <input
           type="password"
           name="password"
-          value={credentials.password}
+          value={formData.password}
           onChange={handleChange}
+          placeholder="Enter your password"
+          required
           style={{ width: '100%', padding: '0.5rem', backgroundColor: '#222', color: '#fff' }}
         />
       </div>
 
-      {/* Submit Button */}
+      
       <button
         type="submit"
         style={{
@@ -95,6 +96,6 @@ function LoginScreen() {
       </button>
     </form>
   );
-}
+};
 
 export default LoginScreen;
