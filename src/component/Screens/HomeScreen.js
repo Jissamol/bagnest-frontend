@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { Link } from "react-router-dom";
+import { Link } from "react-router-dom"; // Add this line
 
 function HomeScreen() {
   const [categories, setCategories] = useState([]);
@@ -8,14 +8,14 @@ function HomeScreen() {
 
   useEffect(() => {
     axios
-      .get("/api/categories") 
+      .get("http://localhost:8000/api/categories")
       .then((response) => {
-        setCategories(response.data.data); // Assuming response contains data with categories
-        console.log("Categories fetched:", response.data.data); // Log the fetched categories to check the structure
+        console.log("Categories fetched:", response.data.data);
+        setCategories(response.data.data);
       })
       .catch((error) => {
         console.error("Error fetching categories:", error);
-        setError("Failed to fetch categories");
+        setError("Failed to fetch categories.");
       });
   }, []);
 
@@ -29,18 +29,18 @@ function HomeScreen() {
         {categories.length > 0 ? (
           categories.map((category) => (
             <div key={category.id} style={styles.categoryCard}>
-              {category.image_url ? (
-                // Check if image_url exists before trying to display it
+              {category.image ? (
                 <img
-                  src={`http://localhost:8000${category.image_url}`} // Concatenate the base URL with image path
+                  src={`http://localhost:8000${category.image}`}
                   alt={category.name}
                   style={styles.categoryImage}
                 />
               ) : (
-                <p>No image available</p> // Fallback if image_url is not provided
+                <div style={styles.noImageFallback}>
+                  <p>No Image Available</p>
+                </div>
               )}
               <h3 style={styles.categoryName}>{category.name}</h3>
-              <p style={styles.categoryDescription}>{category.description}</p>
               <Link to={`/category/${category.id}`} style={styles.link}>
                 View Products
               </Link>
@@ -93,17 +93,24 @@ const styles = {
   categoryImage: {
     width: "100%",
     height: "150px",
-    objectFit: "cover", // This ensures the image fills the container without distortion
+    objectFit: "cover",
+    borderRadius: "4px",
+    marginBottom: "15px",
+  },
+  noImageFallback: {
+    width: "100%",
+    height: "150px",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#333",
+    color: "#aaa",
     borderRadius: "4px",
     marginBottom: "15px",
   },
   categoryName: {
     fontSize: "18px",
     fontWeight: "bold",
-    marginBottom: "10px",
-  },
-  categoryDescription: {
-    fontSize: "14px",
     marginBottom: "10px",
   },
   link: {

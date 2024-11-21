@@ -28,7 +28,7 @@ const LoginScreen = () => {
         if (role === "admin") {
           navigate('/adminhome');  
         } else {
-          navigate('/userhome');  
+          navigate('/');  
         }
       })
       .catch((error) => {
