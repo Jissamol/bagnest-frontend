@@ -44,11 +44,15 @@ const ProductForm = () => {
     }
 
     try {
-      const response = await axios.post("http://127.0.0.1:8000/api/product/", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
+      const response = await axios.post(
+        "http://127.0.0.1:8000/api/product/",
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
 
       if (response.status === 201) {
         setSuccess("Product successfully added!");
@@ -224,6 +228,7 @@ const ProductForm = () => {
             type="file"
             onChange={(e) => setImage(e.target.files[0])}
             style={styles.input}
+            accept="image/*" // This will restrict file selection to image types only
           />
         </div>
 

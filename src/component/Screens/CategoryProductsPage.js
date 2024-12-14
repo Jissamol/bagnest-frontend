@@ -2,63 +2,88 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useParams, useNavigate } from "react-router-dom"; // Import useNavigate instead of useHistory
 
+// Reusable ProductCard Component
+const ProductCard = ({ product, onViewMore }) => (
+    <div
+        style={{
+            ...styles.productCard,
+            ...(styles.productCardHover && { transition: "transform 0.2s ease, box-shadow 0.2s ease" }),
+        }}
+        onMouseEnter={(e) => e.currentTarget.style.transform = "scale(1.05)"}
+        onMouseLeave={(e) => e.currentTarget.style.transform = "scale(1)"}
+    >
+        {product.image ? (
+            <img
+                src={product.image.startsWith("http") ? product.image : `http://localhost:8000${product.image}`}
+                alt={product.name}
+                style={styles.productImage}
+            />
+        ) : (
+            <div style={styles.noImageFallback}>
+                <p>No Image Available</p>
+            </div>
+        )}
+        <h3 style={styles.productName}>{product.name}</h3>
+        <p style={styles.productPrice}>${product.price}</p>
+        <button
+            style={{ ...styles.viewMoreButton, ...(styles.viewMoreButtonHover && { transition: "background-color 0.2s ease" }) }}
+            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "#0056b3"}
+            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "#007bff"}
+            onClick={() => onViewMore(product.id)}
+        >
+            View More
+        </button>
+    </div>
+);
+
 function CategoryProductsPage() {
     const { categoryId } = useParams(); // Get the category ID from the URL
     const [products, setProducts] = useState([]);
+    const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
-    const navigate = useNavigate(); // Use useNavigate instead of useHistory
-  
+    const navigate = useNavigate();
+
     useEffect(() => {
-        // Make a GET request to fetch products based on categoryId
+        if (!categoryId) {
+            setError("Invalid category ID.");
+            setLoading(false);
+            return;
+        }
+
         axios
-            .get(`http://localhost:8000/api/categories/${categoryId}/products/`) // Pass categoryId in the URL
+            .get(`http://localhost:8000/api/categories/${categoryId}/products/`)
             .then((response) => {
-                setProducts(response.data.data); // Store the product data
+                setProducts(response.data.data);
+                setLoading(false);
             })
             .catch((error) => {
-                setError("Failed to fetch products.");
+                console.error("Error fetching products:", error);
+                setError("Failed to fetch products. Please try again later.");
+                setLoading(false);
             });
     }, [categoryId]);
-  
+
     const handleViewMore = (productId) => {
         navigate(`/products/${productId}`); // Navigate to the Product Detail Page
     };
-  
+
     return (
         <div style={styles.container}>
             <h2 style={styles.heading}>Products</h2>
-  
-            {error && <div style={styles.errorMessage}>{error}</div>}
-  
-            <div style={styles.productsContainer}>
-                {products.length > 0 ? (
-                    products.map((product) => (
-                        <div key={product.id} style={styles.productCard}>
-                            {product.image ? (
-                                <img
-                                    src={`http://localhost:8000${product.image}`} // Concatenate base URL with image path
-                                    alt={product.name}
-                                    style={styles.productImage}
-                                />
-                            ) : (
-                                <div style={styles.noImageFallback}>
-                                    <p>No Image Available</p>
-                                </div>
-                            )}
-                            <h3 style={styles.productName}>{product.name}</h3>
-                            <p style={styles.productPrice}>${product.price}</p>
-                            <button
-                                style={styles.viewMoreButton}
-                                onClick={() => handleViewMore(product.id)} // Handle navigation on button click
-                            >
-                                View More
-                            </button>
-                        </div>
-                    ))
-                ) : (
-                    <p>No products found for this category.</p>
-                )}
-            </div>
+
+            {loading ? (
+                <p>Loading products...</p>
+            ) : error ? (
+                <div style={styles.errorMessage}>{error}</div>
+            ) : products.length > 0 ? (
+                <div style={styles.productsContainer}>
+                    {products.map((product) => (
+                        <ProductCard key={product.id} product={product} onViewMore={handleViewMore} />
+                    ))}
+                </div>
+            ) : (
+                <p>No products found for this category.</p>
+            )}
         </div>
     );
 }

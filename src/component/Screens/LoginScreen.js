@@ -13,29 +13,31 @@ const LoginScreen = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-
-    // Update the form data to send email instead of username
+  
     const loginData = {
-      email: formData.username,  // Use email instead of username
-      password: formData.password
+      email: formData.username, // Use email instead of username
+      password: formData.password,
     };
-
+  
     axios
       .post('http://127.0.0.1:8000/api/login/', loginData)
       .then((response) => {
-        const { role } = response.data.data;
-
-        if (role === "admin") {
-          navigate('/adminhome');  
+        const { role, token } = response.data.data;
+  
+        // Store the token in localStorage
+        localStorage.setItem('token', token);
+  
+        // Navigate based on the role
+        if (role === 'admin') {
+          navigate('/adminhome');
         } else {
-          navigate('/');  
+          navigate('/');
         }
       })
       .catch((error) => {
-        alert('Login failed: ' + error.response.data.error);  
+        alert('Login failed: ' + error.response?.data?.error || 'Unknown error');
       });
-};
-
+  };
 
   return (
     <form
@@ -51,7 +53,6 @@ const LoginScreen = () => {
     >
       <h2 style={{ textAlign: 'center', marginBottom: '1rem' }}>Login</h2>
 
-      
       <div style={{ marginBottom: '1rem' }}>
         <label htmlFor="username">Username</label>
         <input
@@ -65,7 +66,6 @@ const LoginScreen = () => {
         />
       </div>
 
-      
       <div style={{ marginBottom: '1rem' }}>
         <label htmlFor="password">Password</label>
         <input
@@ -79,7 +79,6 @@ const LoginScreen = () => {
         />
       </div>
 
-      
       <button
         type="submit"
         style={{

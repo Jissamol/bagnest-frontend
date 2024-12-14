@@ -13,6 +13,7 @@ import ProductForm from "./component/Screens/ProductForm";
 import CategoryProductsPage from "./component/Screens/CategoryProductsPage";
 import ProductDetailPage from "./component/Screens/ProductDetailPage";
 import CartPage from "./component/Screens/CartPage";
+import AuthRoute from "./component/AuthRoute";
 function App() {
   return (
     <>
@@ -27,7 +28,10 @@ function App() {
         <Route path="/category/:categoryId" element={<CategoryProductsPage />} /> {/* Add this route */}
         <Route path="/add-product" element={<ProductForm />} />
         <Route path="/products/:productId" element={<ProductDetailPage />} />
-        <Route path="/cart" element={<CartPage />} />
+        {/* <Route path="/cart" element={<CartPage />} /> */}
+        <Route path="/cart" element={<AuthRoute> <CartPage /> </AuthRoute>
+          }
+        />
       </Routes>
       l̥
     </>
